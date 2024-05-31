@@ -64,6 +64,11 @@ impl Span {
         }
     }
 
+    /// Return true when the start and end of the span are the same position.
+    pub fn is_empty(&self) -> bool {
+        self.start == self.end
+    }
+
     /// Return the region of a multi-line string that this span covers.
     pub fn extract(&self, s: &str) -> String {
         let mut r = String::new();

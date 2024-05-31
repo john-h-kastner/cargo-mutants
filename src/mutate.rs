@@ -11,11 +11,13 @@ use console::{style, StyledObject};
 use serde::ser::{SerializeStruct, Serializer};
 use serde::Serialize;
 use similar::TextDiff;
+use syn::ReturnType;
 use tracing::error;
 use tracing::trace;
 
 use crate::build_dir::BuildDir;
 use crate::package::Package;
+use crate::pretty::ToPrettyString;
 use crate::source::SourceFile;
 use crate::span::Span;
 use crate::MUTATION_MARKER_COMMENT;
@@ -28,6 +30,7 @@ pub enum Genre {
     /// Replace `==` with `!=` and so on.
     BinaryOperator,
     UnaryOperator,
+    Statement,
 }
 
 /// A mutation applied to source code.
@@ -136,12 +139,18 @@ impl Mutant {
         } else {
             if self.replacement.is_empty() {
                 v.push(s("delete "));
+            } else if self.span.is_empty() {
+                v.push(s("insert "));
             } else {
                 v.push(s("replace "));
             }
-            v.push(s(self.original_text()).yellow());
+            if !self.span.is_empty() {
+                v.push(s(self.original_text()).yellow());
+            }
             if !self.replacement.is_empty() {
-                v.push(s(" with "));
+                if !self.span.is_empty() {
+                    v.push(s(" with "));
+                }
                 v.push(s(&self.replacement).bright().yellow());
             }
             if let Some(function) = &self.function {
@@ -279,7 +288,7 @@ mod test {
         let mutants = workspace
             .mutants(&PackageFilter::All, &options, &Console::new())
             .unwrap();
-        assert_eq!(mutants.len(), 5);
+        assert_eq!(mutants.len(), 6);
         assert_eq!(
             format!("{:#?}", mutants[0]),
             indoc! {
@@ -345,6 +354,11 @@ mod test {
             descriptions.join("\n"),
             @r###"
         replace controlled_loop with ()
+        replace should_stop() with true in controlled_loop
+        replace should_stop() with false in controlled_loop
+        replace break; with (); in controlled_loop
+        replace start.elapsed() > Duration::from_secs(60 * 5) with true in controlled_loop
+        replace start.elapsed() > Duration::from_secs(60 * 5) with false in controlled_loop
         replace > with == in controlled_loop
         replace > with < in controlled_loop
         replace * with + in controlled_loop
@@ -361,7 +375,7 @@ mod test {
             &Options::default(),
             &Console::new(),
         )?;
-        assert_eq!(mutants.len(), 5);
+        assert_eq!(mutants.len(), 6);
 
         let mutated_code = mutants[0].mutated_code();
         assert_eq!(mutants[0].function.as_ref().unwrap().function_name, "main");

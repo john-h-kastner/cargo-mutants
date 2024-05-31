@@ -16,7 +16,7 @@ use quote::{quote, ToTokens};
 use syn::ext::IdentExt;
 use syn::spanned::Spanned;
 use syn::visit::Visit;
-use syn::{Attribute, BinOp, Block, Expr, File, ItemFn, ReturnType, Signature, UnOp};
+use syn::{Attribute, BinOp, Block, Expr, File, ItemFn, ReturnType, Signature, Stmt, UnOp};
 use tracing::{debug, debug_span, error, trace, trace_span, warn};
 
 use crate::fnvalue::return_type_replacements;
@@ -183,7 +183,7 @@ struct DiscoveryVisitor<'o> {
     ///
     /// Empty at the top level, often has one element, but potentially more if
     /// there are nested functions.
-    fn_stack: Vec<Arc<Function>>,
+    fn_stack: Vec<Arc<Function<ReturnType>>>,
 
     /// The names from `mod foo;` statements that should be visited later,
     /// namespaced relative to the source file
@@ -199,19 +199,19 @@ impl<'o> DiscoveryVisitor<'o> {
         function_name: &Ident,
         return_type: &ReturnType,
         span: proc_macro2::Span,
-    ) -> Arc<Function> {
+    ) -> Arc<Function<ReturnType>> {
         self.namespace_stack.push(function_name.to_string());
         let full_function_name = self.namespace_stack.join("::");
         let function = Arc::new(Function {
             function_name: full_function_name,
-            return_type: return_type.to_pretty_string(),
+            return_type: return_type.clone(),
             span: span.into(),
         });
         self.fn_stack.push(Arc::clone(&function));
         function
     }
 
-    fn leave_function(&mut self, function: Arc<Function>) {
+    fn leave_function(&mut self, function: Arc<Function<ReturnType>>) {
         self.namespace_stack
             .pop()
             .expect("Namespace stack should not be empty");
@@ -226,7 +226,7 @@ impl<'o> DiscoveryVisitor<'o> {
     fn collect_mutant(&mut self, span: Span, replacement: TokenStream, genre: Genre) {
         self.mutants.push(Mutant {
             source_file: self.source_file.clone(),
-            function: self.fn_stack.last().cloned(),
+            function: self.fn_stack.last().cloned().into(),
             span,
             replacement: replacement.to_pretty_string(),
             genre,
@@ -240,7 +240,7 @@ impl<'o> DiscoveryVisitor<'o> {
             if repls.is_empty() {
                 debug!(
                     function_name = function.function_name,
-                    return_type = function.return_type,
+                    return_type = function.return_type.to_pretty_string(),
                     "No mutants generated for this return type"
                 );
             } else {
@@ -506,6 +506,130 @@ impl<'ast> Visit<'ast> for DiscoveryVisitor<'_> {
             .into_iter()
             .for_each(|rep| self.collect_mutant(i.op.span().into(), rep, Genre::UnaryOperator));
         syn::visit::visit_expr_unary(self, i);
+    }
+
+    // Replace any statement ending in `;` with `();`
+    fn visit_stmt(&mut self, i: &'ast Stmt) {
+        // This might generate too many mutants for codebases using a heavily
+        // imperative style.
+        // Unviable mutant: `return ...;` at the end of a function becomes `();`
+        // which won't compile for a non-unit function. Deleting interior
+        // returns should be viable, and Rust style is to not explicity return
+        // at the end of a function.
+        if let Stmt::Expr(_e, Some(_semi_token)) = i {
+            self.collect_mutant(i.span().into(), quote! { (); }, Genre::Statement);
+        }
+        syn::visit::visit_stmt(self, i);
+    }
+
+    // Replace `if` conditions with `true` and `false`.
+    fn visit_expr_if(&mut self, i: &'ast syn::ExprIf) {
+        // Avoid producing unviable mutants due to variables bindings.
+        // E.g., `if let Some(e) = foo() { e }` replaced  with `if true { e }`
+        if !matches!(i.cond.as_ref(), Expr::Let(_)) {
+            for replacement in [quote! { true }, quote! { false }] {
+                self.collect_mutant(i.cond.span().into(), replacement, Genre::Statement);
+            }
+        }
+        syn::visit::visit_expr_if(self, i);
+    }
+
+    // Break after the first iteration of a while loop so that tests can only
+    // fail if they iterate more than once.
+    fn visit_expr_while(&mut self, i: &'ast syn::ExprWhile) {
+        let breaks_locations = [
+            // Break before starting the first iteration, so that the loop is
+            // never executed
+            i.body.brace_token.span.open().end().into(),
+            // Break after one iteration, so the loop only executes once
+            i.body.brace_token.span.close().start().into(),
+        ];
+        for l in breaks_locations {
+            self.collect_mutant(
+                Span { start: l, end: l },
+                // Includes a leading semicolon becuase multiple semicolons
+                // isn't an error, but adding the `break` without one is an
+                // error if the prior expression is not terminated with a
+                // semicolon.
+                quote! { ;break; },
+                Genre::Statement,
+            );
+        }
+        syn::visit::visit_expr_while(self, i);
+    }
+
+    fn visit_expr_for_loop(&mut self, i: &'ast syn::ExprForLoop) {
+        let breaks_locations = [
+            // Break before starting the first iteration, so that the loop is
+            // never executed
+            i.body.brace_token.span.open().end().into(),
+            // Break after one iteration, so the loop only executes once
+            i.body.brace_token.span.close().start().into(),
+        ];
+        for l in breaks_locations {
+            self.collect_mutant(
+                Span { start: l, end: l },
+                quote! { ;break; },
+                Genre::Statement,
+            );
+        }
+        syn::visit::visit_expr_for_loop(self, i);
+    }
+
+    fn visit_expr_call(&mut self, i: &'ast syn::ExprCall) {
+        if let Expr::Path(f) = i.func.as_ref() {
+            if f.path.is_ident("Some") {
+                self.collect_mutant(
+                    Span {
+                        start: i.span().start().into(),
+                        end: i.span().end().into(),
+                    },
+                    quote! { None },
+                    Genre::Statement,
+                );
+            }
+        }
+        syn::visit::visit_expr_call(self, i);
+    }
+
+    fn visit_expr_method_call(&mut self, i: &'ast syn::ExprMethodCall) {
+        match i.method.to_string().as_str() {
+            // These iterator methods are effectivly `impl Iterator<T> -> impl Iterator<T>`,
+            // so we can typically delete them without introducing a type error.
+            // Some mutants might be unviable if the context cares about the
+            // specific iterator type.
+            "skip_while" | "take_while" | "filter" | "chain" | "cycle" | "rev" | "skip"
+            | "step_by" | "take" => {
+                self.collect_mutant(
+                    Span {
+                        start: i.receiver.span().end().into(),
+                        end: i.span().end().into(),
+                    },
+                    quote! {},
+                    Genre::Statement,
+                );
+            }
+            _ => (),
+        }
+        syn::visit::visit_expr_method_call(self, i);
+    }
+
+    fn visit_expr_return(&mut self, i: &'ast syn::ExprReturn) {
+        if let Some(function) = self.fn_stack.last() {
+            let repls = return_type_replacements(&function.return_type, self.error_exprs);
+            if repls.is_empty() {
+                debug!(
+                    function_name = function.function_name,
+                    return_type = function.return_type.to_pretty_string(),
+                    "No mutants generated for this return type"
+                );
+            } else {
+                let return_value_span = i.expr.span().into();
+                for rep in repls {
+                    self.collect_mutant(return_value_span, rep, Genre::FnValue);
+                }
+            }
+        }
     }
 }
 

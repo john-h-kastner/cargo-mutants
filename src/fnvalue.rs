@@ -97,6 +97,8 @@ fn type_replacements(type_: &Type, error_exprs: &[Expr]) -> impl Iterator<Item =
                         ]
                     })
                     .collect_vec()
+            } else if path_ends_with(path, "RcDoc") {
+                vec![quote! { RcDoc::nil() }]
             } else if let Some((container_type, inner_type)) = known_container(path) {
                 // Something like Arc, Mutex, etc.
                 // TODO: Ideally we should use the path without relying on it being
@@ -777,6 +779,17 @@ mod test {
                 "BTreeMap::from_iter([(\"xyzzy\".into(), true)])",
                 "BTreeMap::from_iter([(\"xyzzy\".into(), false)])",
             ],
+        );
+    }
+
+    #[test]
+    fn rcdoc_replacement() {
+        check_replacements(parse_quote! { -> RcDoc<'_> }, &[], &["RcDoc::nil()"]);
+        check_replacements(parse_quote! { -> RcDoc<'a> }, &[], &["RcDoc::nil()"]);
+        check_replacements(
+            parse_quote! { -> Option<RcDoc<'_>> },
+            &[],
+            &["None", "Some(RcDoc::nil())"],
         );
     }
 
