@@ -19,7 +19,11 @@ pub(crate) fn return_type_replacements(
     error_exprs: &[Expr],
 ) -> Vec<TokenStream> {
     match return_type {
-        ReturnType::Default => vec![quote! { () }],
+        // For functions, `Default` always means unit, so we could replace with
+        // `()` in the function case. Unit implements default, and closures
+        // infer their return type so, we use `default()` instead to generate
+        // more viable mutants.
+        ReturnType::Default => vec![quote! { Default::default() }],
         ReturnType::Type(_rarrow, type_) => type_replacements(type_, error_exprs).collect_vec(),
     }
 }

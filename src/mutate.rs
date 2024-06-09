@@ -62,15 +62,47 @@ pub struct Mutant {
 #[derive(Eq, PartialEq, Debug, Serialize)]
 pub struct Function {
     /// The function that's being mutated, including any containing namespaces.
-    pub function_name: String,
+    /// May be none if this function is actually a closure.
+    pub function_name: Option<String>,
 
     /// The return type of the function, including a leading "-> ", as a fragment of Rust syntax.
     ///
-    /// Empty if the function has no return type (i.e. returns `()`).
+    /// Empty if the function has no explicit return type.
+    /// (i.e. if a function, returns `()`. If closure, infers return type).
     pub return_type: String,
 
     /// The span (line/column range) of the entire function.
     pub span: Span,
+}
+
+impl Function {
+    pub fn function(
+        function_name: String,
+        return_type: &ReturnType,
+        span: proc_macro2::Span,
+    ) -> Self {
+        Self {
+            function_name: Some(function_name),
+            return_type: return_type.to_pretty_string(),
+            span: span.into(),
+        }
+    }
+
+    pub fn closure(return_type: &ReturnType, span: proc_macro2::Span) -> Self {
+        Self {
+            function_name: None,
+            return_type: return_type.to_pretty_string(),
+            span: span.into(),
+        }
+    }
+
+    pub fn function_name_str(&self) -> &str {
+        &self
+            .function_name
+            .as_ref()
+            .map(String::as_str)
+            .unwrap_or("<closure>")
+    }
 }
 
 impl Mutant {
@@ -129,7 +161,7 @@ impl Mutant {
                 .function
                 .as_ref()
                 .expect("FnValue mutant should have a function");
-            v.push(s(&function.function_name).bright().magenta());
+            v.push(s(function.function_name_str()).bright().magenta());
             if !function.return_type.is_empty() {
                 v.push(s(" "));
                 v.push(s(&function.return_type).magenta());
@@ -145,7 +177,18 @@ impl Mutant {
                 v.push(s("replace "));
             }
             if !self.span.is_empty() {
-                v.push(s(self.original_text()).yellow());
+                let original = self.original_text();
+                // Sometimes we replace multiple lines of text which clutters
+                // the logs. Truncate to the first line for pretty output. Full
+                // diff is of course available with `--diff`.
+                let one_line_original = if let Some((first_line, _)) = original.split_once('\n') {
+                    let mut first_line = first_line.to_owned();
+                    first_line.push_str("...");
+                    first_line
+                } else {
+                    original
+                };
+                v.push(s(one_line_original).yellow());
             }
             if !self.replacement.is_empty() {
                 if !self.span.is_empty() {
@@ -155,7 +198,7 @@ impl Mutant {
             }
             if let Some(function) = &self.function {
                 v.push(s(" in "));
-                v.push(s(&function.function_name).bright().magenta());
+                v.push(s(function.function_name_str()).bright().magenta());
             }
         }
         v
@@ -378,7 +421,10 @@ mod test {
         assert_eq!(mutants.len(), 6);
 
         let mutated_code = mutants[0].mutated_code();
-        assert_eq!(mutants[0].function.as_ref().unwrap().function_name, "main");
+        assert_eq!(
+            mutants[0].function.as_ref().unwrap().function_name_str(),
+            "main"
+        );
         assert_eq!(
             strip_trailing_space(&mutated_code),
             indoc! { r#"
@@ -405,7 +451,7 @@ mod test {
 
         let mutated_code = mutants[1].mutated_code();
         assert_eq!(
-            mutants[1].function.as_ref().unwrap().function_name,
+            mutants[1].function.as_ref().unwrap().function_name_str(),
             "factorial"
         );
         assert_eq!(
