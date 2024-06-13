@@ -315,7 +315,7 @@ mod test {
                     ),
                     replacement: "0",
                     genre: FnValue,
-                    span: Span(8, 5, 12, 6),
+                    span: Span(12, 5, 12, 6),
                     package_name: "cargo-mutants-testdata-factorial",
                 }"#
             }
@@ -326,11 +326,11 @@ mod test {
         );
         assert_eq!(
             mutants[1].name(true, false),
-            "src/bin/factorial.rs:8:5: replace factorial -> u32 with 0"
+            "src/bin/factorial.rs:12:5: replace factorial -> u32 with 0"
         );
         assert_eq!(
             mutants[2].name(true, false),
-            "src/bin/factorial.rs:8:5: replace factorial -> u32 with 1"
+            "src/bin/factorial.rs:12:5: replace factorial -> u32 with 1"
         );
     }
 
@@ -404,6 +404,10 @@ mod test {
                 }
 
                 fn factorial(n: u32) -> u32 {
+                    let mut a = 1;
+                    for i in 2..=n {
+                        a *= i;
+                    }
                     0 /* ~ changed by cargo-mutants ~ */
                 }
 
