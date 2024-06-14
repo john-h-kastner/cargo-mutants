@@ -24,8 +24,8 @@ src/methods.rs:17:16: replace *= with += in Foo::double
 src/methods.rs:17:16: replace *= with /= in Foo::double
 src/methods.rs:23:9: replace <impl Display for Foo>::fmt -> fmt::Result with Ok(Default::default())
 src/methods.rs:29:9: replace <impl Debug for &Foo>::fmt -> fmt::Result with Ok(Default::default())
-src/nested_function.rs:2:5: replace has_nested -> u32 with 0
-src/nested_function.rs:2:5: replace has_nested -> u32 with 1
+src/nested_function.rs:5:5: replace has_nested -> u32 with 0
+src/nested_function.rs:5:5: replace has_nested -> u32 with 1
 src/nested_function.rs:3:9: replace has_nested::inner -> u32 with 0
 src/nested_function.rs:3:9: replace has_nested::inner -> u32 with 1
 src/nested_function.rs:5:13: replace * with + in has_nested
@@ -57,23 +57,23 @@ src/numbers.rs:22:5: replace bitwise_not_u32 -> u32 with 1
 src/numbers.rs:22:5: delete ! in bitwise_not_u32
 src/result.rs:6:5: replace simple_result -> Result<&'static str, ()> with Ok("")
 src/result.rs:6:5: replace simple_result -> Result<&'static str, ()> with Ok("xyzzy")
-src/result.rs:10:5: replace error_if_negative -> Result<(), ()> with Ok(())
+src/result.rs:11:9: replace error_if_negative -> Result<(), ()> with Ok(())
 src/result.rs:10:10: replace < with == in error_if_negative
 src/result.rs:10:10: replace < with > in error_if_negative
 src/result.rs:18:5: replace result_with_no_apparent_type_args -> std::fmt::Result with Ok(Default::default())
-src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::new()
-src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter([String::new()])
-src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter(["xyzzy".into()])
-src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(Vec::new())
-src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("")])
-src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("".to_owned())])
-src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("xyzzy")])
-src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("xyzzy".to_owned())])
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::new()
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter([String::new()])
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter(["xyzzy".into()])
+src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(Vec::new())
+src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("")])
+src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("".to_owned())])
+src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("xyzzy")])
+src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("xyzzy".to_owned())])
 src/slices.rs:5:20: replace < with == in pad
 src/slices.rs:5:20: replace < with > in pad
-src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(Vec::new())
-src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![0])
-src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![1])
+src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(Vec::new())
+src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![0])
+src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![1])
 src/slices.rs:14:12: replace *= with += in return_mut_slice
 src/slices.rs:14:12: replace *= with /= in return_mut_slice
 src/static_item.rs:1:33: replace == with !=

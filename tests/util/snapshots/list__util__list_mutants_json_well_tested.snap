@@ -534,7 +534,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
     "replacement": "()",
     "span": {
       "end": {
-        "column": 21,
+        "column": 20,
         "line": 17
       },
       "start": {
@@ -689,7 +689,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 2
+        "line": 5
       }
     }
   },
@@ -719,7 +719,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 2
+        "line": 5
       }
     }
   },
@@ -1674,12 +1674,12 @@ expression: "String::from_utf8_lossy(&output.stdout)"
     "replacement": "Ok(())",
     "span": {
       "end": {
-        "column": 6,
-        "line": 14
+        "column": 16,
+        "line": 11
       },
       "start": {
-        "column": 5,
-        "line": 10
+        "column": 9,
+        "line": 11
       }
     }
   },
@@ -1799,7 +1799,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 7
       }
     }
   },
@@ -1829,7 +1829,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 7
       }
     }
   },
@@ -1859,7 +1859,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 7
       }
     }
   },
@@ -1884,7 +1884,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
     "replacement": "()",
     "span": {
       "end": {
-        "column": 13,
+        "column": 12,
         "line": 8
       },
       "start": {
@@ -2189,7 +2189,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 27
+        "line": 29
       }
     }
   },
@@ -2219,7 +2219,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 27
+        "line": 29
       }
     }
   },
@@ -2249,7 +2249,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 9
       }
     }
   },
@@ -2279,7 +2279,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 9
       }
     }
   },
@@ -2309,7 +2309,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 9
       }
     }
   },
@@ -2339,7 +2339,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 9
       }
     }
   },
@@ -2369,7 +2369,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 4
+        "line": 9
       }
     }
   },
@@ -2459,7 +2459,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 13
+        "line": 16
       }
     }
   },
@@ -2489,7 +2489,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 13
+        "line": 16
       }
     }
   },
@@ -2519,7 +2519,7 @@ expression: "String::from_utf8_lossy(&output.stdout)"
       },
       "start": {
         "column": 5,
-        "line": 13
+        "line": 16
       }
     }
   },

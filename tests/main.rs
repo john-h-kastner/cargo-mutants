@@ -117,7 +117,7 @@ fn small_well_tested_tree_is_clean() {
     let log_content = fs::read_to_string(
         tmp_src_dir
             .path()
-            .join("mutants.out/log/src__lib.rs_line_5_col_5.log"),
+            .join("mutants.out/log/src__lib.rs_line_9_col_5.log"),
     )
     .unwrap()
     .replace('\r', "");
@@ -127,14 +127,14 @@ fn small_well_tested_tree_is_clean() {
             *** mutation diff:
             --- src/lib.rs
             +++ replace factorial -> u32 with 0
-            @@ -1,17 +1,13 @@
+            @@ -1,17 +1,17 @@
         "# }));
     assert!(log_content.contains(indoc! { r#"
              pub fn factorial(n: u32) -> u32 {
-            -    let mut a = 1;
-            -    for i in 2..=n {
-            -        a *= i;
-            -    }
+                 let mut a = 1;
+                 for i in 2..=n {
+                     a *= i;
+                 }
             -    a
             +    0 /* ~ changed by cargo-mutants ~ */
              }
@@ -214,10 +214,13 @@ fn well_tested_tree_finds_no_problems() {
         .as_i64()
         .expect("outcomes['caught'] is an integer");
     assert!(caught > 40, "expected more outcomes caught than {caught}");
-    assert_eq!(outcomes["unviable"], 0);
+    assert_eq!(outcomes["unviable"], 3);
     assert_eq!(outcomes["missed"], 0);
     assert_eq!(outcomes["timeout"], 0);
-    assert_eq!(outcomes["total_mutants"], outcomes["caught"]);
+    assert_eq!(
+        outcomes["total_mutants"].as_i64().unwrap(),
+        outcomes["caught"].as_i64().unwrap() + outcomes["unviable"].as_i64().unwrap()
+    );
     check_text_list_output(tmp_src_dir.path(), "well_tested_tree_finds_no_problems");
 }
 

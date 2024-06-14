@@ -1,8 +1,8 @@
 use std::result::Result;
 
-pub fn zero_is_ok(n: u32) -> Result<u32, &'static str> {
+pub fn zero_is_ok(n: u32) -> Result<(), &'static str> {
     if n == 0 {
-        Ok(n)
+        Ok(())
     } else {
         Err("not zero")
     }

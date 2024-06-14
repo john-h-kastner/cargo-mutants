@@ -26,8 +26,8 @@ caught   src/methods.rs:17:16: replace *= with += in Foo::double
 caught   src/methods.rs:17:16: replace *= with /= in Foo::double
 caught   src/methods.rs:23:9: replace <impl Display for Foo>::fmt -> fmt::Result with Ok(Default::default())
 caught   src/methods.rs:29:9: replace <impl Debug for &Foo>::fmt -> fmt::Result with Ok(Default::default())
-caught   src/nested_function.rs:2:5: replace has_nested -> u32 with 0
-caught   src/nested_function.rs:2:5: replace has_nested -> u32 with 1
+caught   src/nested_function.rs:5:5: replace has_nested -> u32 with 0
+caught   src/nested_function.rs:5:5: replace has_nested -> u32 with 1
 caught   src/nested_function.rs:3:9: replace has_nested::inner -> u32 with 0
 caught   src/nested_function.rs:3:9: replace has_nested::inner -> u32 with 1
 caught   src/nested_function.rs:5:13: replace * with + in has_nested
@@ -59,13 +59,13 @@ caught   src/numbers.rs:22:5: replace bitwise_not_u32 -> u32 with 1
 caught   src/numbers.rs:22:5: delete ! in bitwise_not_u32
 caught   src/result.rs:6:5: replace simple_result -> Result<&'static str, ()> with Ok("")
 caught   src/result.rs:6:5: replace simple_result -> Result<&'static str, ()> with Ok("xyzzy")
-caught   src/result.rs:10:5: replace error_if_negative -> Result<(), ()> with Ok(())
+caught   src/result.rs:11:9: replace error_if_negative -> Result<(), ()> with Ok(())
 caught   src/result.rs:10:10: replace < with == in error_if_negative
 caught   src/result.rs:10:10: replace < with > in error_if_negative
 caught   src/result.rs:18:5: replace result_with_no_apparent_type_args -> std::fmt::Result with Ok(Default::default())
-caught   src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::new()
-caught   src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter([String::new()])
-caught   src/sets.rs:4:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter(["xyzzy".into()])
+unviable src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::new()
+unviable src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter([String::new()])
+unviable src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter(["xyzzy".into()])
 caught   src/simple_fns.rs:8:5: replace returns_unit with ()
 caught   src/simple_fns.rs:8:8: replace += with -= in returns_unit
 caught   src/simple_fns.rs:8:8: replace += with *= in returns_unit
@@ -76,18 +76,18 @@ caught   src/simple_fns.rs:18:5: replace divisible_by_three -> bool with false
 caught   src/simple_fns.rs:18:11: replace == with != in divisible_by_three
 caught   src/simple_fns.rs:18:7: replace % with / in divisible_by_three
 caught   src/simple_fns.rs:18:7: replace % with + in divisible_by_three
-caught   src/simple_fns.rs:27:5: replace double_string -> String with String::new()
-caught   src/simple_fns.rs:27:5: replace double_string -> String with "xyzzy".into()
-caught   src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(Vec::new())
-caught   src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("")])
-caught   src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("".to_owned())])
-caught   src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("xyzzy")])
-caught   src/slices.rs:4:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("xyzzy".to_owned())])
+caught   src/simple_fns.rs:29:5: replace double_string -> String with String::new()
+caught   src/simple_fns.rs:29:5: replace double_string -> String with "xyzzy".into()
+caught   src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(Vec::new())
+caught   src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("")])
+caught   src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("".to_owned())])
+caught   src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Borrowed("xyzzy")])
+caught   src/slices.rs:9:5: replace pad -> &'a[Cow<'static, str>] with Vec::leak(vec![Cow::Owned("xyzzy".to_owned())])
 caught   src/slices.rs:5:20: replace < with == in pad
 caught   src/slices.rs:5:20: replace < with > in pad
-caught   src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(Vec::new())
-caught   src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![0])
-caught   src/slices.rs:13:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![1])
+caught   src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(Vec::new())
+caught   src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![0])
+caught   src/slices.rs:16:5: replace return_mut_slice -> &mut[usize] with Vec::leak(vec![1])
 caught   src/slices.rs:14:12: replace *= with += in return_mut_slice
 caught   src/slices.rs:14:12: replace *= with /= in return_mut_slice
 caught   src/static_item.rs:1:33: replace == with !=
@@ -98,4 +98,4 @@ caught   src/struct_with_lifetime.rs:15:9: replace Lex<'buf>::buf_len -> usize w
 caught   src/traits.rs:5:9: replace Something::is_three -> bool with true
 caught   src/traits.rs:5:9: replace Something::is_three -> bool with false
 caught   src/traits.rs:5:11: replace == with != in Something::is_three
-94 mutants tested: 94 caught
+94 mutants tested: 91 caught, 3 unviable

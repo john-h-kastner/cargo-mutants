@@ -20,8 +20,8 @@ fn small_well_tested_tree_check_only() {
             insta::assert_snapshot!(stdout, @r###"
             Found 4 mutants to test
             ok       Unmutated baseline
-            ok       src/lib.rs:5:5: replace factorial -> u32 with 0
-            ok       src/lib.rs:5:5: replace factorial -> u32 with 1
+            ok       src/lib.rs:9:5: replace factorial -> u32 with 0
+            ok       src/lib.rs:9:5: replace factorial -> u32 with 1
             ok       src/lib.rs:7:11: replace *= with += in factorial
             ok       src/lib.rs:7:11: replace *= with /= in factorial
             4 mutants tested: 4 succeeded
@@ -93,8 +93,8 @@ fn check_succeeds_in_tree_that_builds_but_fails_tests() {
             insta::assert_snapshot!(stdout, @r###"
             Found 4 mutants to test
             ok       Unmutated baseline
-            ok       src/lib.rs:2:5: replace factorial -> u32 with 0
-            ok       src/lib.rs:2:5: replace factorial -> u32 with 1
+            ok       src/lib.rs:6:5: replace factorial -> u32 with 0
+            ok       src/lib.rs:6:5: replace factorial -> u32 with 1
             ok       src/lib.rs:4:11: replace *= with += in factorial
             ok       src/lib.rs:4:11: replace *= with /= in factorial
             4 mutants tested: 4 succeeded
@@ -128,7 +128,7 @@ fn check_tree_with_mutants_skip() {
             insta::assert_snapshot!(stdout, @r###"
             Found 5 mutants to test
             ok       Unmutated baseline
-            ok       src/lib.rs:15:5: replace controlled_loop with ()
+            ok       src/lib.rs:16:5: replace controlled_loop with ()
             ok       src/lib.rs:21:28: replace > with == in controlled_loop
             ok       src/lib.rs:21:28: replace > with < in controlled_loop
             ok       src/lib.rs:21:53: replace * with + in controlled_loop

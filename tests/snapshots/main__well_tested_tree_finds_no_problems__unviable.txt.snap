@@ -2,4 +2,6 @@
 source: tests/main.rs
 expression: content
 ---
-
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::new()
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter([String::new()])
+src/sets.rs:7:5: replace make_a_set -> BTreeSet<String> with BTreeSet::from_iter(["xyzzy".into()])
